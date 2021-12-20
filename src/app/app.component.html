@@ -16,6 +16,22 @@
 >
   EXPORT: Conversion Factor
 </button>
+<br />
+<br />
+<div style="border: 2px solid #858585; border-radius: 10px; padding: 5px">
+  <label for="f02"
+    >Please import: Hole Sections && Casing Design excel template
+  </label>
+  <input id="f02" type="file" (change)="hasSelected($event)" />
+</div>
+<br />
+<button
+  (click)="overriding()"
+  style="padding: 10px; background-color: aquamarine; border-radius: 10px"
+>
+  EXPORT: Overriding data
+</button>
+
 <img src="../assets/t1.png" alt="" style="width: 95vw" />
 <img src="../assets/t2.png" alt="" style="width: 95vw" />
 <img src="../assets/t3.png" alt="" style="width: 95vw" />

@@ -1,5 +1,7 @@
 import { Component } from "@angular/core";
 import { ExcelService } from "./excel.service";
+import { expect } from "chai";
+import { Workbook, ValueType } from "exceljs";
 
 @Component({
   selector: "app-root",
@@ -12,7 +14,6 @@ export class AppComponent {
   generateExcel() {
     const data = [
       [
-        "",
         36,
         "Conductor",
         "Casing",
@@ -29,7 +30,6 @@ export class AppComponent {
         "Failed to load",
       ],
       [
-        "",
         36,
         "Conductor",
         "Casing",
@@ -46,7 +46,6 @@ export class AppComponent {
         "Failed to load",
       ],
       [
-        "",
         36,
         "Conductor",
         "Casing",
@@ -63,7 +62,6 @@ export class AppComponent {
         "Failed to load",
       ],
       [
-        "",
         36,
         "Conductor",
         "Casing",
@@ -80,7 +78,6 @@ export class AppComponent {
         "Failed to load",
       ],
       [
-        "",
         36,
         "Conductor",
         "Casing",
@@ -187,8 +184,7 @@ export class AppComponent {
     const wb = this.excelService.generateWorkbook();
     const sheet1 = this.excelService.addWorksheet(wb, "Hole Sections");
     this.excelService.styleWidthColumns(sheet1, [
-      { width: 12 },
-      { width: 10 },
+      { width: 20 },
       { width: 15 },
       { width: 15 },
       { width: 15 },
@@ -207,21 +203,20 @@ export class AppComponent {
       sheet1,
       "Hole Sections Summary",
       1,
-      15,
+      14,
       STYLE_SHEET_TITLE
     );
     this.excelService.addRowTitle(
       sheet1,
       "Hole Sections",
       1,
-      15,
+      14,
       STYLE_TABLE_TITLE
     );
     this.excelService.addHeader(
       sheet1,
       this.excelService.STYLE_HEADER,
       [
-        "",
         "Hole Size(in)",
         "Name",
         "String Type",
@@ -237,33 +232,20 @@ export class AppComponent {
         "Lithology at Shoe",
         "Kick Tolerance (bbl)",
       ],
-      ["", "", "", "", "", "Top", "Shoe", "TOC", "Top", "Shoe", "TOC"]
+      ["", "", "", "", "Top", "Shoe", "TOC", "Top", "Shoe", "TOC"]
     );
     this.excelService.addData(sheet1, data, STYLE_DATA_BLACK);
+    this.excelService.addEmptyRow(sheet1, 2);
 
-    const sheet2 = this.excelService.addWorksheet(wb, "Casing Design");
-    this.excelService.styleWidthColumns(sheet2, [
-      { width: 18 },
-      { width: 13 },
-      { width: 13 },
-      { width: 18 },
-      { width: 18 },
-      { width: 18 },
-      { width: 18 },
-      { width: 18 },
-      { width: 18 },
-      { width: 18 },
-      { width: 18 },
-    ]);
     this.excelService.addRowTitle(
-      sheet2,
+      sheet1,
       "Casing Design",
       1,
       11,
       STYLE_TABLE_TITLE
     );
     this.excelService.addHeader(
-      sheet2,
+      sheet1,
       this.excelService.STYLE_HEADER,
       [
         "Name/Type",
@@ -280,7 +262,7 @@ export class AppComponent {
       ],
       ["", "", "", "", "", "", "", "Burst", "Collapse", "Axial", "Triaxial"]
     );
-    this.excelService.addData(sheet2, data2, STYLE_DATA_BLACK);
+    this.excelService.addData(sheet1, data2, STYLE_DATA_BLACK);
 
     this.excelService.saveAsExcelFile(wb, "Hole Sections Summary");
   }
@@ -362,5 +344,115 @@ export class AppComponent {
     ]);
     this.excelService.addData(sheet1, data3, STYLE_DATA2);
     this.excelService.saveAsExcelFile(wb, "Conversion factor");
+  }
+  wb: any;
+  hasSelected(e: any) {
+    const dataOverriding = [
+      [
+        26,
+        "Surface",
+        "Casing",
+        20,
+        543.8,
+        9284.3,
+        5443.8,
+        434.8,
+        654.3,
+        436.8,
+        654.35,
+        "",
+        "",
+        "Failed to load",
+      ],
+      [
+        26,
+        "Surface",
+        "Casing",
+        20,
+        543.8,
+        9284.3,
+        5443.8,
+        434.8,
+        654.3,
+        436.8,
+        654.35,
+        "",
+        "",
+        "Failed to load",
+      ],
+      [
+        26,
+        "Surface",
+        "Casing",
+        20,
+        543.8,
+        9284.3,
+        5443.8,
+        434.8,
+        654.3,
+        436.8,
+        654.35,
+        "",
+        "",
+        "Failed to load",
+      ],
+      [
+        26,
+        "Surface",
+        "Casing",
+        20,
+        543.8,
+        9284.3,
+        5443.8,
+        434.8,
+        654.3,
+        436.8,
+        654.35,
+        "",
+        "",
+        "Failed to load",
+      ],
+      [
+        26,
+        "Surface",
+        "Casing",
+        20,
+        543.8,
+        9284.3,
+        5443.8,
+        434.8,
+        654.3,
+        436.8,
+        654.35,
+        "",
+        "",
+        "Failed to load",
+      ],
+    ];
+    const file = e.target.files[0];
+    this.wb = this.excelService.generateWorkbook();
+    const reader = new FileReader();
+
+    reader.readAsArrayBuffer(file);
+    reader.onload = () => {
+      const buffer: any = reader.result;
+      this.wb.xlsx.load(buffer).then((workbook: any) => {
+        const a = workbook;
+        console.log(workbook, "workbook instance");
+
+        workbook.eachSheet((sheet, id) => {
+          sheet.eachRow((row, rowIndex) => {
+            let index = 0;
+            if (rowIndex >= 5 && rowIndex <= 9) {
+              this.excelService.overrideRowValue(row, dataOverriding[index]);
+              index++;
+            }
+          });
+        });
+      });
+    };
+  }
+  overriding() {
+    this.excelService.saveAsExcelFile(this.wb, "overriding");
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Workbook } from "exceljs";
+import { Workbook, ValueType } from "exceljs";
 import * as fs from "file-saver";
 @Injectable({
   providedIn: "root",
@@ -14,7 +14,7 @@ export class ExcelService {
     border: true,
     height: 35,
     font: { size: 15, bold: true, color: { argb: "000000" } },
-    alignment: { horizontal: "center", vertical: "middle", wrapText: true },
+    alignment: { horizontal: "center", vertical: "middle" },
     fill: {
       type: "pattern",
       pattern: "solid",
@@ -32,7 +32,17 @@ export class ExcelService {
       fgColor: { argb: "ff0000" },
     },
   };
-
+  STYLE_DATA_BLACK = {
+    border: true,
+    height: 45,
+    font: { size: 15, bold: false, color: { argb: "333333" } },
+    alignment: { horizontal: "center", vertical: "middle" },
+    fill: {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "d1d1d1" },
+    },
+  };
   STYLE_DATA_WARNING = {
     border: true,
     height: 70,
@@ -54,7 +64,8 @@ export class ExcelService {
     ws: any,
     style: any,
     header: string[],
-    bottomHeader?: string[]
+    bottomHeader?: string[],
+    startColumn?: number
   ) {
     const rowHeader = this.addRow(ws, header, style);
     let rowBottomHeader;
@@ -64,14 +75,6 @@ export class ExcelService {
         const cellFrom = indexContent;
         let cellTo = 0;
         for (let index = indexContent + 1; index < header.length + 1; index++) {
-          console.log(
-            "vào tới ",
-            indexContent,
-            index,
-            header[index],
-            header.length
-          );
-
           if (header[index] !== "" || index === header.length) {
             cellTo = index;
             indexContent = index;
@@ -101,6 +104,11 @@ export class ExcelService {
     const row = ws.addRow(data);
     this.styleRowCell(row, style);
     return row;
+  }
+  public overrideRowValue(row, data) {
+    row.eachCell({ includeEmpty: true }, function (cell, colNumber) {
+      cell.value = data[colNumber - 1];
+    });
   }
   private styleRowCell(row, style) {
     const borderStyles = {
@@ -160,10 +168,17 @@ export class ExcelService {
       workSheet.columns = widths;
     }
   }
-  private addEmptyRow(workSheet: any, numberRow: number = 1) {
+  public addEmptyRow(workSheet: any, numberRow: number = 1) {
     for (let index = 0; index < numberRow; index++) {
       workSheet.addRow([]);
     }
+  }
+  public async test() {
+    const workbook = this.generateWorkbook();
+    var worksheet = workbook.addWorksheet("first", {
+      views: [{ showGridLines: false }],
+    });
+    this.saveAsExcelFile(workbook, "Hole Sections Summary");
   }
 }
 
